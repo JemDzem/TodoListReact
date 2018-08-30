@@ -1,0 +1,114 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+</head>
+<body>
+
+    <div id="app"></div>
+
+    <script type="text/babel">
+        let uniqueId=1;
+
+        class App extends React.Component{
+            state = {
+                todoArray:[{name:"Zadanie",id:uniqueId++},{name:"Zakupy",id:uniqueId++}],
+                doneArray:[{name:"Nauka reacta",id:uniqueId++}],
+                addTaskTextFiled:""
+            }
+            
+            handleChange = (event) =>{
+
+                this.setState({addTaskTextFiled:event.target.value})
+            }
+
+            handleClick= (event, id, flag)=>{
+                if(flag==false){
+                this.state.doneArray.push(this.state.todoArray.filter(item=>item.id==id)[0])
+                }
+            this.setState(prevState=>({
+                todoArray:prevState.todoArray.filter(item=>item.id!=id)
+            }))
+            }
+
+             handleClickDone= (event, id, flag) =>{
+                if(flag==false){
+                this.state.todoArray.push(this.state.doneArray.filter(item=>item.id==id)[0])
+                }
+            this.setState(prevState=>({
+                doneArray:prevState.doneArray.filter(item=>item.id!=id)
+            }))
+            }
+            
+            
+            handleKeyPress = (event) => {
+                if(event.key == 'Enter'){
+                    this.setState(prevState => ({
+                        todoArray: [...prevState.todoArray, {name:this.state.addTaskTextFiled,id:uniqueId++}],
+                        addTaskTextFiled:""
+                    }))
+                }
+            }
+
+            render() {
+                return(
+                    <div className="container">
+                        <AddTask value={this.state.addTaskTextFiled} handleChangeFunction={this.handleChange} handleKeyPressFunction={this.handleKeyPress}/>
+                        <TodoList handleClickFunction={this.handleClick} type="Todo" array={this.state.todoArray}/>
+                        <TodoList handleClickFunction={this.handleClickDone} type="Done" array={this.state.doneArray}/>
+                    </div>
+                );
+            }
+
+        }
+        
+        class TodoList extends React.Component{
+            render() {
+                const tasks = this.props.array.map((item, index) => {
+                return <Task key={index} id={item.id} name={item.name} handleClickFunction={this.props.handleClickFunction} type={this.props.type}/>});
+                
+                return <div className="todo-list">
+                <h1>{this.props.type}:</h1>
+                {tasks}</div>;
+            }
+        }
+        class Task extends React.Component{
+            render() {
+                let style={textDecoration:'none'}
+                if(this.props.type=="Done"){
+                    style={textDecoration:'line-through'}
+                }
+
+                return (<div className="blue lighten-3 t">
+                <div style={{float:'left'}} onClick={(e) => this.props.handleClickFunction(e,this.props.id,false)}><h5 style={style}>{this.props.name}</h5></div>
+                <div className="delete" onClick={(e) => this.props.handleClickFunction(e,this.props.id,true)}>X</div><div style={{clear:'both'}}></div>
+                </div>)
+               
+            }
+
+        }
+
+         class AddTask extends React.Component{
+            render() {
+              return (<div>
+                    <input type="text" value={this.props.value} onChange={this.props.handleChangeFunction} onKeyPress={this.props.handleKeyPressFunction}/>
+               </div>
+              )
+            }
+        }
+
+
+
+        ReactDOM.render(<App/>,document.getElementById('app'));
+    </script>
+
+</body>
+</html>
